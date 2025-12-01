@@ -106,6 +106,7 @@
                 subtitle: "Hulhumale",
                 location: "Lonuveli Hotel",
                 icon: Hotel,
+                image: "hotel-lonuveli-outside.jpg",
                 details: {
                   info: "第一晚過境住宿",
                   notes: "位於胡魯馬利 (Hulhumale)，距離機場約 15 分鐘車程。飯店提供接駁。",
@@ -137,6 +138,7 @@
                 subtitle: "開始度假模式",
                 location: "Meeru Maldives Resort Island",
                 icon: Hotel,
+                image: "Meeru2-672x428.jpg",
                 details: {
                   info: "Meeru Maldives Resort Island",
                   notes: "全包式度假村。確認餐飲方案包含內容。電壓 220V，準備萬用轉接頭。",
@@ -263,6 +265,7 @@
                 subtitle: "Crowne Plaza Changi",
                 location: "Crowne Plaza Changi Airport",
                 icon: Hotel,
+                image: "Crowne Plaza.jpg",
                 details: {
                   info: "過境住宿",
                   notes: "位於 T3 航廈旁，交通極其便利。好好休息準備明日返台。",
@@ -300,7 +303,10 @@
 
           return React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" },
             React.createElement("div", { className: "bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all animate-slide-up" },
-              React.createElement("div", { className: "bg-teal-600 p-4 text-white flex justify-between items-center" },
+               // Hero Image in Modal if available (Optional, currently showing in card list is better, but let's keep modal clean or add it here too)
+              data.image && React.createElement("img", { src: data.image, className: "w-full h-48 object-cover" }),
+              
+              React.createElement("div", { className: "bg-teal-600 p-4 text-white flex justify-between items-center " + (data.image ? "" : "rounded-t-2xl") },
                 React.createElement("h3", { className: "text-lg font-bold" }, data.title),
                 React.createElement("button", { onClick: onClose, className: "p-1 hover:bg-teal-700 rounded-full" },
                   React.createElement(X, { size: 20 })
@@ -356,18 +362,28 @@
               ),
               React.createElement("div", { 
                 onClick: () => onOpenModal(event),
-                className: "flex-1 bg-white rounded-xl p-4 shadow-md border border-gray-100 active:scale-[0.98] transition-transform cursor-pointer hover:shadow-lg group"
+                className: "flex-1 bg-white rounded-xl shadow-md border border-gray-100 active:scale-[0.98] transition-transform cursor-pointer hover:shadow-lg group overflow-hidden"
               },
-                React.createElement("div", { className: "flex justify-between items-start mb-2" },
-                  React.createElement("div", null,
-                    React.createElement("h4", { className: "font-bold text-gray-900 group-hover:text-teal-600 transition-colors" }, event.title),
-                    React.createElement("p", { className: "text-sm text-teal-600 font-medium" }, event.subtitle)
-                  ),
-                  React.createElement(Icon, { className: "text-gray-400 group-hover:text-teal-500", size: 20 })
+                // Image Section in Card
+                event.image && React.createElement("div", { className: "h-32 w-full overflow-hidden" },
+                    React.createElement("img", { 
+                        src: event.image, 
+                        alt: event.title,
+                        className: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    })
                 ),
-                React.createElement("div", { className: "flex items-center text-xs text-gray-500 mt-2" },
-                  React.createElement(MapPin, { size: 12, className: "mr-1" }),
-                  event.location
+                React.createElement("div", { className: "p-4" },
+                    React.createElement("div", { className: "flex justify-between items-start mb-2" },
+                    React.createElement("div", null,
+                        React.createElement("h4", { className: "font-bold text-gray-900 group-hover:text-teal-600 transition-colors" }, event.title),
+                        React.createElement("p", { className: "text-sm text-teal-600 font-medium" }, event.subtitle)
+                    ),
+                    React.createElement(Icon, { className: "text-gray-400 group-hover:text-teal-500", size: 20 })
+                    ),
+                    React.createElement("div", { className: "flex items-center text-xs text-gray-500 mt-2" },
+                    React.createElement(MapPin, { size: 12, className: "mr-1" }),
+                    event.location
+                    )
                 )
               )
             )
@@ -485,7 +501,8 @@
 
                  React.createElement(InfoCard, { icon: CreditCard, title: "貨幣與消費", color: "green" },
                    React.createElement("p", { className: "mb-2" }, React.createElement("strong", null, "匯率："), "1 USD ≈ 15.2 MVR。"),
-                   React.createElement("p", { className: "mb-2" }, "大多數店家收美元，不需特換盧菲亞。注意：當地只收", React.createElement("strong", null, "美元新鈔"), "，舊鈔、有摺痕或破損會被拒收。")
+                   React.createElement("p", { className: "mb-2" }, "大多數店家收美元，不需特換盧菲亞。注意：當地只收", React.createElement("strong", null, "美元新鈔"), "，舊鈔、有摺痕或破損會被拒收。"),
+                   React.createElement("img", { src: "rufiyaa.jpg", alt: "Maldivian Rufiyaa Banknotes", className: "w-full rounded-lg mt-3 shadow-md border border-gray-100" })
                  ),
 
                  React.createElement(InfoCard, { icon: Zap, title: "電壓與插座", color: "yellow" },
