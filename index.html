@@ -215,6 +215,20 @@
             location: "Meeru Island",
             events: [
               {
+                time: "10:00",
+                endTime: "12:00",
+                type: "activity",
+                title: "參觀 Dhiffushi 居民島",
+                subtitle: "Island Hopping",
+                location: "Dhiffushi Island",
+                icon: Camera,
+                image: "Dhiffushi.jpg",
+                details: {
+                  info: "居民島文化體驗",
+                  notes: "馬爾地夫居民島是探索當地文化、生活方式與藝術的絕佳去處。拜訪鄰近島嶼，看看當地居民如何在傳統的生活步調中共同工作與生活。\n在 Dhiffushi 島上，您將有機會在當地商店購買紀念品，請記得攜帶美金現金前往購物。\n服裝規定：參觀居民島時，女性至少需穿著短袖上衣及過膝短褲，男性則需穿著短褲。",
+                }
+              },
+              {
                 time: "20:00",
                 type: "party",
                 title: "跨年晚宴",
@@ -325,7 +339,7 @@
                 React.createElement("div", { className: "space-y-2 text-gray-600 text-sm" },
                    React.createElement("p", { className: "font-semibold text-gray-800" }, "詳細資訊："),
                    React.createElement("p", null, data.details?.info),
-                   React.createElement("div", { className: "border-l-4 border-yellow-400 pl-3 py-1 bg-yellow-50 text-gray-700 rounded-r" },
+                   React.createElement("div", { className: "border-l-4 border-yellow-400 pl-3 py-1 bg-yellow-50 text-gray-700 rounded-r whitespace-pre-line" },
                      data.details?.notes
                    ),
                    data.details?.seat && React.createElement("p", { className: "text-xs bg-gray-100 p-2 rounded inline-block" }, "💺 " + data.details.seat)
