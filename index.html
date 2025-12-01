@@ -31,7 +31,7 @@
         import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
         import { 
             Plane, MapPin, Hotel, Sun, Moon, Coffee, Camera, Utensils, 
-            Info, X, Navigation, CloudSun, Umbrella, Waves, CreditCard, Zap, Globe 
+            Info, X, Navigation, CloudSun, Umbrella, Waves, CreditCard, Zap, Globe, Users
         } from 'https://esm.sh/lucide-react@0.263.1';
 
         // --- Data ---
@@ -41,6 +41,19 @@
           "Malé": { temp: "30°C", cond: "Sunny", icon: Sun },
           "Meeru Island": { temp: "31°C", cond: "Clear", icon: Waves },
         };
+
+        const FRIENDS_DATA = [
+          { name: "Jonathon Tree", image: "avatar/Jonathon Tree.jfif", quote: "迫不及待想跳進清澈的海水裡！" },
+          { name: "王伯安", image: "avatar/王伯安.jfif", quote: "期待在馬爾地夫的星空下放空！" },
+          { name: "吳全勳", image: "avatar/吳全勳.jpg", quote: "準備好迎接大海與陽光了嗎？" },
+          { name: "吳宜瑾", image: "avatar/吳宜瑾.jfif", quote: "陽光、沙灘、海浪，美好假期的開始。" },
+          { name: "林策", image: "avatar/林策.jfif", quote: "這趟旅程一定會充滿難忘的回憶！" },
+          { name: "林聖翔", image: "avatar/林聖翔.jfif", quote: "享受海島的悠閒時光與音樂。" },
+          { name: "林翰平", image: "avatar/林翰平.jfif", quote: "探索世界的每一個角落。" },
+          { name: "徐右霖", image: "avatar/徐右霖.jfif", quote: "充飽電，繼續向前行！" },
+          { name: "郭柏鴻", image: "avatar/郭柏鴻.jfif", quote: "希望能拍出人生代表作照片。" },
+          { name: "陳柏琛", image: "avatar/陳柏琛.jfif", quote: "放鬆心情，享受當下的每一刻。" }
+        ];
 
         const TIPPING_GUIDE = [
           { role: "潛水教練 / 導遊", amount: "10-20 USD/次", note: "行程結束後給，避免只給1美元" },
@@ -332,6 +345,30 @@
         const Modal = ({ isOpen, onClose, data }) => {
           if (!isOpen || !data) return null;
 
+          // Special rendering for Friend profile
+          if (data.type === 'friend') {
+             return React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" },
+                React.createElement("div", { className: "bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all animate-slide-up p-6 text-center" },
+                   React.createElement("div", { className: "relative w-32 h-32 mx-auto mb-4" },
+                      React.createElement("img", { 
+                        src: data.image, 
+                        className: "w-full h-full object-cover rounded-full border-4 border-teal-500 shadow-lg"
+                      })
+                   ),
+                   React.createElement("h3", { className: "text-2xl font-bold text-gray-800 mb-2" }, data.title),
+                   React.createElement("div", { className: "bg-teal-50 p-4 rounded-xl text-teal-800 italic relative" },
+                      React.createElement("span", { className: "text-4xl absolute -top-2 left-2 opacity-20" }, "“"),
+                      React.createElement("p", { className: "text-lg font-medium" }, data.details.quote),
+                      React.createElement("span", { className: "text-4xl absolute -bottom-6 right-2 opacity-20" }, "”")
+                   ),
+                   React.createElement("button", { 
+                     onClick: onClose,
+                     className: "mt-6 bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-bold hover:bg-gray-300 transition"
+                   }, "關閉")
+                )
+             );
+          }
+
           return React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" },
             React.createElement("div", { className: "bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all animate-slide-up" },
                // Hero Image in Modal if available (Optional, currently showing in card list is better, but let's keep modal clean or add it here too)
@@ -456,6 +493,16 @@
             setModalData(data);
             setIsModalOpen(true);
           };
+          
+          const handleOpenFriendModal = (friend) => {
+             setModalData({
+                type: 'friend',
+                title: friend.name,
+                image: friend.image,
+                details: { quote: friend.quote }
+             });
+             setIsModalOpen(true);
+          };
 
           useEffect(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -477,7 +524,7 @@
                     activeTab < 7 ? React.createElement("div", { className: "mt-2 flex items-center gap-2 text-teal-50" },
                        React.createElement("span", { className: "bg-white/20 px-2 py-0.5 rounded text-sm" }, currentDayData.date),
                        React.createElement("span", { className: "text-sm truncate max-w-[150px]" }, currentDayData.location.split('->')[0])
-                    ) : React.createElement("div", { className: "mt-2 text-teal-50" }, "Travel Guide")
+                    ) : React.createElement("div", { className: "mt-2 text-teal-50" }, activeTab === 7 ? "Travel Guide" : "Travel Buddies")
                   ),
                   activeTab < 7 && React.createElement("div", { className: "flex flex-col items-center bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20" },
                     React.createElement(WeatherIcon, { size: 24, className: "text-yellow-300 mb-1" }),
@@ -490,6 +537,8 @@
 
             // Main Content
             React.createElement("div", { className: "px-5 -mt-8 relative z-10" },
+              
+              // ITINERARY VIEW (Days 1-7)
               activeTab < 7 && React.createElement("div", { className: "bg-white/80 backdrop-blur-sm rounded-t-3xl min-h-[500px] p-2" },
                  React.createElement("div", { className: "mt-6" },
                    currentDayData.events.map((event, index) => 
@@ -509,6 +558,7 @@
                  )
               ),
 
+              // INFO VIEW
               activeTab === 7 && React.createElement("div", { className: "space-y-4 pt-4" },
                  // IMUGA Card
                  React.createElement("div", { className: "bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-5 text-white shadow-lg" },
@@ -581,6 +631,25 @@
                      )
                    )
                  )
+              ),
+
+              // FRIENDS VIEW
+              activeTab === 8 && React.createElement("div", { className: "pt-4" },
+                 React.createElement("div", { className: "grid grid-cols-2 gap-4" },
+                    FRIENDS_DATA.map((friend, idx) => 
+                       React.createElement("div", { 
+                          key: idx, 
+                          className: "bg-white rounded-2xl p-4 shadow-md flex flex-col items-center cursor-pointer hover:shadow-lg transition-all active:scale-95",
+                          onClick: () => handleOpenFriendModal(friend)
+                       },
+                          React.createElement("div", { className: "w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-teal-100" },
+                             React.createElement("img", { src: friend.image, alt: friend.name, className: "w-full h-full object-cover" })
+                          ),
+                          React.createElement("h3", { className: "font-bold text-gray-800" }, friend.name),
+                          React.createElement("span", { className: "text-xs text-teal-500 mt-1" }, "點擊查看")
+                       )
+                    )
+                 )
               )
             ),
 
@@ -611,6 +680,17 @@
                 },
                   React.createElement(Info, { size: 24 }),
                   React.createElement("span", { className: "text-[9px] font-bold mt-0.5" }, "INFO")
+                ),
+                React.createElement("button", {
+                  onClick: () => setActiveTab(8),
+                  className: `flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
+                    activeTab === 8
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-200 scale-105' 
+                      : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                  }`
+                },
+                  React.createElement(Users, { size: 24 }),
+                  React.createElement("span", { className: "text-[9px] font-bold mt-0.5" }, "Friends")
                 )
               )
             ),
