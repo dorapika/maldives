@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>馬爾地夫 & 新加坡之旅</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        .animate-slide-up { animation: slide-up 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
+
+    <!-- React & Libraries via ESM -->
+    <script type="module">
+        import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
+        import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
+        import { 
+            Plane, MapPin, Hotel, Sun, Moon, Coffee, Camera, Utensils, 
+            Info, X, Navigation, CloudSun, Umbrella, Waves, CreditCard, Zap, Globe 
+        } from 'https://esm.sh/lucide-react@0.263.1';
+
+        // --- Data ---
+        const WEATHER_MOCK = {
+          "Taipei": { temp: "18°C", cond: "Cloudy", icon: CloudSun },
+          "Singapore": { temp: "29°C", cond: "Thunderstorm", icon: Umbrella },
+          "Malé": { temp: "30°C", cond: "Sunny", icon: Sun },
+          "Meeru Island": { temp: "31°C", cond: "Clear", icon: Waves },
+        };
+
+        const TIPPING_GUIDE = [
+          { role: "潛水教練 / 導遊", amount: "10-20 USD/次", note: "行程結束後給，避免只給1美元" },
+          { role: "餐廳服務生", amount: "5-10 USD/次", note: "壓在桌上，留意帳單是否已含服務費" },
+          { role: "管家 (Butler)", amount: "10 USD/天起", note: "離島當天一次性給" },
+          { role: "房務員", amount: "5 USD/次", note: "放床頭或枕頭下" },
+          { role: "行李搬運", amount: "5-10 USD/次", note: "視行李數量增加" },
+          { role: "Buggy 接送", amount: "5 USD/趟", note: "視距離與態度" },
+        ];
+
+        const ITINERARY = [
+          {
+            day: 1,
+            date: "12/27 (六)",
+            location: "Taipei -> Singapore -> Malé",
+            events: [
+              {
+                time: "14:10",
+                endTime: "18:55",
+                type: "flight",
+                title: "TPE -> SIN",
+                subtitle: "SQ877 | 飛行 4h 45m",
+                location: "Taoyuan Int. Airport T2",
+                icon: Plane,
+                details: {
+                  info: "新加坡航空 SQ877",
+                  seat: "預選座位: 45A, 45C",
+                  notes: "抵達新加坡樟宜機場 T3。轉機時間 1小時45分，請盡速前往 T2 登機門。",
+                }
+              },
+              {
+                time: "18:55",
+                endTime: "20:40",
+                type: "transit",
+                title: "樟宜機場轉機",
+                subtitle: "停留 1h 45m",
+                location: "Changi Airport",
+                icon: Coffee,
+                details: {
+                  info: "快速轉機提示",
+                  notes: "利用 Skytrain 往返航廈。建議不離開管制區。",
+                }
+              },
+              {
+                time: "20:40",
+                endTime: "22:15",
+                type: "flight",
+                title: "SIN -> MLE",
+                subtitle: "SQ438 | 飛行 4h 35m",
+                location: "Changi Airport T2",
+                icon: Plane,
+                details: {
+                  info: "新加坡航空 SQ438",
+                  seat: "預選座位: 52H, 52K",
+                  notes: "抵達馬列韋拉納國際機場 (Velana Int. Airport)。記得填寫 IMUGA 入境申報。",
+                  link: "https://www.stan-travel.com/imuga-maldives-immigration/"
+                }
+              },
+              {
+                time: "23:00",
+                type: "hotel",
+                title: "入住 Lonuveli",
+                subtitle: "Hulhumale",
+                location: "Lonuveli Hotel",
+                icon: Hotel,
+                details: {
+                  info: "第一晚過境住宿",
+                  notes: "位於胡魯馬利 (Hulhumale)，距離機場約 15 分鐘車程。飯店提供接駁。",
+                }
+              }
+            ]
+          },
+          {
+            day: 2,
+            date: "12/28 (日)",
+            location: "Malé -> Meeru Island",
+            events: [
+              {
+                time: "09:00",
+                type: "transport",
+                title: "快艇/水飛前往渡假村",
+                subtitle: "前往 Meeru Island",
+                location: "Velana Int. Airport Docks",
+                icon: Navigation,
+                details: {
+                  info: "度假村接駁",
+                  notes: "請於大廳等候工作人員引導。船程約 55 分鐘。",
+                }
+              },
+              {
+                time: "14:00",
+                type: "hotel",
+                title: "Check-in Meeru Maldives",
+                subtitle: "開始度假模式",
+                location: "Meeru Maldives Resort Island",
+                icon: Hotel,
+                details: {
+                  info: "Meeru Maldives Resort Island",
+                  notes: "全包式度假村。確認餐飲方案包含內容。電壓 220V，準備萬用轉接頭。",
+                }
+              },
+              {
+                time: "18:00",
+                type: "activity",
+                title: "夕陽晚餐",
+                subtitle: "Resort Dining",
+                location: "Meeru Maldives Resort Island",
+                icon: Utensils,
+                details: {
+                  info: "晚餐時段",
+                  notes: "記得給予服務生小費 (建議 5-10 USD)。",
+                }
+              }
+            ]
+          },
+          {
+            day: 3,
+            date: "12/29 (一)",
+            location: "Meeru Island",
+            events: [
+              {
+                time: "10:00",
+                type: "activity",
+                title: "出海浮潛 / 水上活動",
+                subtitle: "享受印度洋",
+                location: "Meeru Maldives House Reef",
+                icon: Waves,
+                details: {
+                  info: "水上活動",
+                  notes: "防曬建議穿著水母衣。注意洋流。教練小費建議 10-20 USD。",
+                }
+              },
+              {
+                time: "15:00",
+                type: "relax",
+                title: "沙灘放鬆 / SPA",
+                subtitle: "自由活動",
+                location: "Meeru Maldives Resort Island",
+                icon: Sun,
+                details: {
+                  info: "休閒時光",
+                  notes: "可以在酒吧享用飲品，或預約島上 SPA。",
+                }
+              }
+            ]
+          },
+          {
+            day: 4,
+            date: "12/30 (二)",
+            location: "Meeru Island",
+            events: [
+              {
+                time: "ALL DAY",
+                type: "activity",
+                title: "全日度假村體驗",
+                subtitle: "Meeru Island",
+                location: "Meeru Maldives Resort Island",
+                icon: Camera,
+                details: {
+                  info: "探索島嶼",
+                  notes: "參觀島上博物館、骨架酒吧，或參加黃昏垂釣活動。",
+                }
+              }
+            ]
+          },
+          {
+            day: 5,
+            date: "12/31 (三)",
+            location: "Meeru Island",
+            events: [
+              {
+                time: "20:00",
+                type: "party",
+                title: "跨年晚宴",
+                subtitle: "New Year's Eve",
+                location: "Meeru Maldives Resort Island",
+                icon: Utensils,
+                details: {
+                  info: "Gala Dinner",
+                  notes: "慶祝 2026 到來！通常會有特別表演與自助餐。",
+                }
+              }
+            ]
+          },
+          {
+            day: 6,
+            date: "01/01 (四)",
+            location: "Malé -> Singapore",
+            events: [
+              {
+                time: "09:00",
+                type: "transport",
+                title: "返回馬列機場",
+                subtitle: "Check-out & Transfer",
+                location: "Velana Int. Airport",
+                icon: Navigation,
+                details: {
+                  info: "退房",
+                  notes: "結清島上消費帳單。給予管家/行李員小費。",
+                }
+              },
+              {
+                time: "12:55",
+                endTime: "20:45",
+                type: "flight",
+                title: "MLE -> SIN",
+                subtitle: "SQ431 | 飛行 4h 50m",
+                location: "Velana Int. Airport",
+                icon: Plane,
+                details: {
+                  info: "新加坡航空 SQ431",
+                  seat: "預選座位",
+                  notes: "再次入境新加坡。需填寫新加坡入境卡 (SG Arrival Card)。",
+                }
+              },
+              {
+                time: "22:00",
+                type: "hotel",
+                title: "入住樟宜機場皇冠假日",
+                subtitle: "Crowne Plaza Changi",
+                location: "Crowne Plaza Changi Airport",
+                icon: Hotel,
+                details: {
+                  info: "過境住宿",
+                  notes: "位於 T3 航廈旁，交通極其便利。好好休息準備明日返台。",
+                }
+              }
+            ]
+          },
+          {
+            day: 7,
+            date: "01/02 (五)",
+            location: "Singapore -> Taipei",
+            events: [
+              {
+                time: "08:30",
+                endTime: "12:55",
+                type: "flight",
+                title: "SIN -> TPE",
+                subtitle: "SQ876 | 飛行 4h 25m",
+                location: "Changi Airport T3",
+                icon: Plane,
+                details: {
+                  info: "新加坡航空 SQ876",
+                  seat: "預選座位",
+                  notes: "旅程結束，平安返家。",
+                }
+              }
+            ]
+          }
+        ];
+
+        // --- Components ---
+
+        const Modal = ({ isOpen, onClose, data }) => {
+          if (!isOpen || !data) return null;
+
+          return React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" },
+            React.createElement("div", { className: "bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all animate-slide-up" },
+              React.createElement("div", { className: "bg-teal-600 p-4 text-white flex justify-between items-center" },
+                React.createElement("h3", { className: "text-lg font-bold" }, data.title),
+                React.createElement("button", { onClick: onClose, className: "p-1 hover:bg-teal-700 rounded-full" },
+                  React.createElement(X, { size: 20 })
+                )
+              ),
+              React.createElement("div", { className: "p-5 space-y-4" },
+                React.createElement("div", { className: "flex items-center text-teal-700 font-medium" },
+                  React.createElement("span", { className: "bg-teal-100 p-2 rounded-lg mr-3" },
+                    React.createElement(data.icon, { size: 20 })
+                  ),
+                  data.subtitle
+                ),
+                React.createElement("div", { className: "space-y-2 text-gray-600 text-sm" },
+                   React.createElement("p", { className: "font-semibold text-gray-800" }, "詳細資訊："),
+                   React.createElement("p", null, data.details?.info),
+                   React.createElement("div", { className: "border-l-4 border-yellow-400 pl-3 py-1 bg-yellow-50 text-gray-700 rounded-r" },
+                     data.details?.notes
+                   ),
+                   data.details?.seat && React.createElement("p", { className: "text-xs bg-gray-100 p-2 rounded inline-block" }, "💺 " + data.details.seat)
+                ),
+                data.details?.link && React.createElement("a", { 
+                    href: data.details.link, 
+                    target: "_blank", 
+                    rel: "noreferrer",
+                    className: "block w-full text-center py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition"
+                  }, "開啟相關連結"
+                ),
+                React.createElement("a", { 
+                    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.location)}`,
+                    target: "_blank",
+                    rel: "noreferrer",
+                    className: "flex items-center justify-center gap-2 w-full py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
+                  },
+                  React.createElement(MapPin, { size: 16 }), " 開啟地圖導航"
+                )
+              )
+            )
+          );
+        };
+
+        const TimelineItem = ({ event, isLast, onOpenModal }) => {
+          const Icon = event.icon;
+          
+          return React.createElement("div", { className: "relative pl-6 pb-8" },
+            !isLast && React.createElement("div", { className: "absolute left-[11px] top-8 bottom-0 w-0.5 bg-gray-200" }),
+            React.createElement("div", { className: "absolute left-0 top-0 w-6 h-6 rounded-full bg-white border-2 border-teal-500 flex items-center justify-center z-10 shadow-sm" },
+              React.createElement("div", { className: "w-2 h-2 rounded-full bg-teal-500" })
+            ),
+            React.createElement("div", { className: "flex flex-col sm:flex-row gap-3" },
+              React.createElement("div", { className: "min-w-[60px] pt-0.5" },
+                React.createElement("span", { className: "font-bold text-gray-800 text-base" }, event.time),
+                event.endTime && React.createElement("div", { className: "text-xs text-gray-400" }, event.endTime)
+              ),
+              React.createElement("div", { 
+                onClick: () => onOpenModal(event),
+                className: "flex-1 bg-white rounded-xl p-4 shadow-md border border-gray-100 active:scale-[0.98] transition-transform cursor-pointer hover:shadow-lg group"
+              },
+                React.createElement("div", { className: "flex justify-between items-start mb-2" },
+                  React.createElement("div", null,
+                    React.createElement("h4", { className: "font-bold text-gray-900 group-hover:text-teal-600 transition-colors" }, event.title),
+                    React.createElement("p", { className: "text-sm text-teal-600 font-medium" }, event.subtitle)
+                  ),
+                  React.createElement(Icon, { className: "text-gray-400 group-hover:text-teal-500", size: 20 })
+                ),
+                React.createElement("div", { className: "flex items-center text-xs text-gray-500 mt-2" },
+                  React.createElement(MapPin, { size: 12, className: "mr-1" }),
+                  event.location
+                )
+              )
+            )
+          );
+        };
+
+        const InfoCard = ({ icon: Icon, title, children, color = "teal" }) => {
+            return React.createElement("div", { className: "bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-4" },
+                React.createElement("div", { className: "flex items-center gap-3 mb-3 border-b border-gray-100 pb-2" },
+                    React.createElement("div", { className: `p-2 rounded-lg bg-${color}-50 text-${color}-600` },
+                        React.createElement(Icon, { size: 20 })
+                    ),
+                    React.createElement("h3", { className: "font-bold text-gray-800" }, title)
+                ),
+                React.createElement("div", { className: "text-sm text-gray-600 leading-relaxed" }, children)
+            );
+        };
+
+        const App = () => {
+          const [activeTab, setActiveTab] = useState(0); 
+          const [modalData, setModalData] = useState(null);
+          const [isModalOpen, setIsModalOpen] = useState(false);
+          const scrollContainerRef = useRef(null);
+
+          const currentDayData = ITINERARY[activeTab];
+          
+          const getLocationWeather = (locStr) => {
+            if (locStr.includes("Taipei")) return WEATHER_MOCK["Taipei"];
+            if (locStr.includes("Singapore")) return WEATHER_MOCK["Singapore"];
+            if (locStr.includes("Meeru")) return WEATHER_MOCK["Meeru Island"];
+            if (locStr.includes("Malé")) return WEATHER_MOCK["Malé"];
+            return WEATHER_MOCK["Malé"];
+          };
+
+          const currentWeather = currentDayData ? getLocationWeather(currentDayData.location) : WEATHER_MOCK["Malé"];
+          const WeatherIcon = currentWeather.icon;
+
+          const handleOpenModal = (data) => {
+            setModalData(data);
+            setIsModalOpen(true);
+          };
+
+          useEffect(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, [activeTab]);
+
+          return React.createElement("div", { className: "min-h-screen bg-slate-50 pb-24 font-sans text-slate-900" },
+            // Hero Section
+            React.createElement("div", { className: "relative bg-gradient-to-br from-teal-600 to-cyan-700 text-white rounded-b-[2.5rem] shadow-xl overflow-hidden" },
+              React.createElement("div", { className: "absolute top-0 left-0 w-full h-full opacity-10" },
+                 React.createElement("svg", { className: "w-full h-full", viewBox: "0 0 100 100", preserveAspectRatio: "none" },
+                   React.createElement("path", { d: "M0 100 C 20 0 50 0 100 100 Z", fill: "white" })
+                 )
+              ),
+              React.createElement("div", { className: "relative px-6 pt-12 pb-16" },
+                React.createElement("div", { className: "flex justify-between items-start" },
+                  React.createElement("div", null,
+                    React.createElement("p", { className: "text-teal-100 text-sm font-medium tracking-wider uppercase mb-1" }, "Current Trip"),
+                    React.createElement("h1", { className: "text-3xl font-bold" }, "Maldives & SG"),
+                    activeTab < 7 ? React.createElement("div", { className: "mt-2 flex items-center gap-2 text-teal-50" },
+                       React.createElement("span", { className: "bg-white/20 px-2 py-0.5 rounded text-sm" }, currentDayData.date),
+                       React.createElement("span", { className: "text-sm truncate max-w-[150px]" }, currentDayData.location.split('->')[0])
+                    ) : React.createElement("div", { className: "mt-2 text-teal-50" }, "Travel Guide")
+                  ),
+                  activeTab < 7 && React.createElement("div", { className: "flex flex-col items-center bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20" },
+                    React.createElement(WeatherIcon, { size: 24, className: "text-yellow-300 mb-1" }),
+                    React.createElement("span", { className: "text-xl font-bold" }, currentWeather.temp),
+                    React.createElement("span", { className: "text-xs text-teal-100" }, currentWeather.cond)
+                  )
+                )
+              )
+            ),
+
+            // Main Content
+            React.createElement("div", { className: "px-5 -mt-8 relative z-10" },
+              activeTab < 7 && React.createElement("div", { className: "bg-white/80 backdrop-blur-sm rounded-t-3xl min-h-[500px] p-2" },
+                 React.createElement("div", { className: "mt-6" },
+                   currentDayData.events.map((event, index) => 
+                     React.createElement(TimelineItem, { 
+                       key: index, 
+                       event: event, 
+                       isLast: index === currentDayData.events.length - 1,
+                       onOpenModal: handleOpenModal
+                     })
+                   ),
+                   React.createElement("div", { className: "text-center mt-8 mb-4" },
+                      React.createElement("div", { className: "inline-block p-2 bg-teal-50 rounded-full text-teal-300" },
+                        React.createElement(Moon, { size: 20 })
+                      ),
+                      React.createElement("p", { className: "text-xs text-gray-400 mt-2" }, "End of " + currentDayData.date)
+                   )
+                 )
+              ),
+
+              activeTab === 7 && React.createElement("div", { className: "space-y-4 pt-4" },
+                 React.createElement("div", { className: "bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-5 text-white shadow-lg" },
+                    React.createElement("div", { className: "flex justify-between items-start" },
+                      React.createElement("div", null,
+                        React.createElement("h3", { className: "font-bold text-lg" }, "IMUGA 入境申報"),
+                        React.createElement("p", { className: "text-blue-100 text-sm mt-1" }, "馬爾地夫入境必備，需在班機抵達前 96 小時內填寫。")
+                      ),
+                      React.createElement(Globe, { className: "text-blue-200" })
+                    ),
+                    React.createElement("a", { 
+                      href: "https://www.stan-travel.com/imuga-maldives-immigration/", 
+                      target: "_blank", 
+                      rel: "noreferrer",
+                      className: "mt-4 block w-full bg-white text-blue-600 text-center py-2 rounded-lg font-bold text-sm"
+                    }, "前往填寫")
+                 ),
+
+                 React.createElement(InfoCard, { icon: Sun, title: "氣候與穿著", color: "orange" },
+                   React.createElement("p", null, "全年均溫 26～32 ℃，準備夏季休閒服裝即可。建議攜帶薄外套防曬及飛機上禦寒。")
+                 ),
+
+                 React.createElement(InfoCard, { icon: CreditCard, title: "貨幣與消費", color: "green" },
+                   React.createElement("p", { className: "mb-2" }, React.createElement("strong", null, "匯率："), "1 USD ≈ 15.2 MVR。"),
+                   React.createElement("p", { className: "mb-2" }, "大多數店家收美元，不需特換盧菲亞。注意：當地只收", React.createElement("strong", null, "美元新鈔"), "，舊鈔、有摺痕或破損會被拒收。")
+                 ),
+
+                 React.createElement(InfoCard, { icon: Zap, title: "電壓與插座", color: "yellow" },
+                    React.createElement("p", null, "220/240V。三插式或二圓孔式（與新加坡同）。請自備國際萬用轉接插頭。")
+                 ),
+
+                 React.createElement(InfoCard, { icon: CreditCard, title: "小費指南 (建議準備百元美金小鈔)", color: "teal" },
+                   React.createElement("div", { className: "overflow-x-auto" },
+                     React.createElement("table", { className: "w-full text-left text-xs" },
+                       React.createElement("thead", null,
+                         React.createElement("tr", { className: "border-b border-gray-200 text-gray-500" },
+                           React.createElement("th", { className: "pb-2" }, "對象"),
+                           React.createElement("th", { className: "pb-2" }, "建議金額")
+                         )
+                       ),
+                       React.createElement("tbody", { className: "divide-y divide-gray-100" },
+                         TIPPING_GUIDE.map((tip, idx) => 
+                           React.createElement("tr", { key: idx },
+                             React.createElement("td", { className: "py-2 pr-2 font-medium" }, tip.role),
+                             React.createElement("td", { className: "py-2 text-gray-500" },
+                               React.createElement("span", { className: "font-bold text-teal-600 block" }, tip.amount),
+                               React.createElement("span", { className: "text-[10px]" }, tip.note)
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+              )
+            ),
+
+            // Bottom Nav
+            React.createElement("div", { className: "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 pb-safe z-40 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]" },
+              React.createElement("div", { ref: scrollContainerRef, className: "flex overflow-x-auto gap-2 no-scrollbar px-2" },
+                ITINERARY.map((day, idx) => 
+                  React.createElement("button", {
+                    key: idx,
+                    onClick: () => setActiveTab(idx),
+                    className: `flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
+                      activeTab === idx 
+                        ? 'bg-teal-600 text-white shadow-lg shadow-teal-200 scale-105' 
+                        : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                    }`
+                  },
+                    React.createElement("span", { className: "text-[10px] font-bold uppercase" }, "Day"),
+                    React.createElement("span", { className: "text-lg font-bold leading-none" }, day.day)
+                  )
+                ),
+                React.createElement("button", {
+                  onClick: () => setActiveTab(7),
+                  className: `flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${
+                    activeTab === 7
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 scale-105' 
+                      : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                  }`
+                },
+                  React.createElement(Info, { size: 24 }),
+                  React.createElement("span", { className: "text-[9px] font-bold mt-0.5" }, "INFO")
+                )
+              )
+            ),
+
+            // Modal
+            React.createElement(Modal, { isOpen: isModalOpen, onClose: () => setIsModalOpen(false), data: modalData })
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
