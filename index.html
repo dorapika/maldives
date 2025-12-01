@@ -510,6 +510,7 @@
               ),
 
               activeTab === 7 && React.createElement("div", { className: "space-y-4 pt-4" },
+                 // IMUGA Card
                  React.createElement("div", { className: "bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl p-5 text-white shadow-lg" },
                     React.createElement("div", { className: "flex justify-between items-start" },
                       React.createElement("div", null,
@@ -523,6 +524,23 @@
                       target: "_blank", 
                       rel: "noreferrer",
                       className: "mt-4 block w-full bg-white text-blue-600 text-center py-2 rounded-lg font-bold text-sm"
+                    }, "前往填寫")
+                 ),
+
+                 // SG Arrival Card
+                 React.createElement("div", { className: "bg-gradient-to-r from-red-600 to-red-500 rounded-xl p-5 text-white shadow-lg" },
+                    React.createElement("div", { className: "flex justify-between items-start" },
+                      React.createElement("div", null,
+                        React.createElement("h3", { className: "font-bold text-lg" }, "SGAC 新加坡電子入境卡"),
+                        React.createElement("p", { className: "text-red-100 text-sm mt-1" }, "新加坡入境必備，需在班機抵達前 72 小時內填寫。")
+                      ),
+                      React.createElement(Globe, { className: "text-red-200" })
+                    ),
+                    React.createElement("a", { 
+                      href: "https://eservices.ica.gov.sg/sgarrivalcard/", 
+                      target: "_blank", 
+                      rel: "noreferrer",
+                      className: "mt-4 block w-full bg-white text-red-600 text-center py-2 rounded-lg font-bold text-sm"
                     }, "前往填寫")
                  ),
 
