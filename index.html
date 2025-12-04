@@ -31,7 +31,7 @@
         import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
         import { 
             Plane, MapPin, Hotel, Sun, Moon, Coffee, Camera, Utensils, 
-            Info, X, Navigation, CloudSun, Umbrella, Waves, CreditCard, Zap, Globe, Users
+            Info, X, Navigation, CloudSun, Umbrella, Waves, CreditCard, Zap, Globe, Users, Luggage 
         } from 'https://esm.sh/lucide-react@0.263.1';
 
         // --- Data ---
@@ -618,6 +618,28 @@
                    React.createElement("p", null, "全年均溫 26～32 ℃，準備夏季休閒服裝即可。建議攜帶薄外套防曬及飛機上禦寒。")
                  ),
 
+                 React.createElement(InfoCard, { icon: Luggage, title: "行李準備", color: "purple" },
+                    React.createElement("div", { className: "space-y-3" },
+                        React.createElement("div", { className: "bg-purple-50 p-3 rounded-lg border border-purple-100" },
+                            React.createElement("h4", { className: "font-bold text-purple-700 mb-1" }, "新加坡航空行李限額"),
+                            React.createElement("p", null, "託運行李：每人限重 25 公斤"),
+                            React.createElement("p", null, "手提行李：每人限重 7 公斤")
+                        ),
+                        React.createElement("div", null,
+                            React.createElement("h4", { className: "font-bold text-gray-700 mb-1" }, "12月底馬爾地夫打包建議"),
+                            React.createElement("ul", { className: "list-disc list-inside space-y-1 text-gray-600" },
+                                React.createElement("li", null, "夏季輕便衣物 (短袖、短褲、洋裝)"),
+                                React.createElement("li", null, "薄外套 (機場及室內冷氣強)"),
+                                React.createElement("li", null, "泳衣 2-3 套、水母衣 (強烈建議，防曬且防珊瑚刮傷)"),
+                                React.createElement("li", null, "防曬用品 (海洋友善防曬乳、墨鏡、遮陽帽)"),
+                                React.createElement("li", null, "個人盥洗用品及牙刷牙膏 (環保考量，部分飯店不主動提供)"),
+                                React.createElement("li", null, "個人常備藥品 (暈船藥、腸胃藥、止痛藥)"),
+                                React.createElement("li", null, "防水相機 / 手機防水袋")
+                            )
+                        )
+                    )
+                 ),
+
                  React.createElement(InfoCard, { icon: CreditCard, title: "貨幣與消費", color: "green" },
                    React.createElement("p", { className: "mb-2" }, React.createElement("strong", null, "匯率："), "1 USD ≈ 15.2 MVR。"),
                    React.createElement("p", { className: "mb-2" }, "大多數店家收美元，不需特換盧菲亞。注意：當地只收", React.createElement("strong", null, "美元新鈔"), "，舊鈔、有摺痕或破損會被拒收。盧菲亞為塑膠鈔票，以下為全套的各面額鈔票。"),
@@ -626,6 +648,30 @@
 
                  React.createElement(InfoCard, { icon: Zap, title: "電壓與插座", color: "yellow" },
                     React.createElement("p", null, "220/240V。三插式或二圓孔式（與新加坡同）。請自備國際萬用轉接插頭。")
+                 ),
+
+                 React.createElement(InfoCard, { icon: Globe, title: "SIM卡購買", color: "blue" },
+                    React.createElement("p", { className: "mb-2" }, "在機場的電信商 Dhiraagu 與 Ooredoo 可以購買 SIM 卡。目前常見方案為 7 天 5GB，約 15~20 USD。"),
+                    
+                    // Added Google Maps Buttons
+                    React.createElement("div", { className: "flex gap-2 mb-3" },
+                        React.createElement("a", { 
+                            href: "https://www.google.com/maps/search/?api=1&query=Dhiraagu+Velana+International+Airport",
+                            target: "_blank", 
+                            rel: "noreferrer",
+                            className: "flex-1 bg-orange-50 text-orange-600 border border-orange-100 px-3 py-2 rounded-lg text-xs font-bold text-center hover:bg-orange-100 transition flex items-center justify-center gap-1"
+                        }, React.createElement(MapPin, { size: 12 }), "Dhiraagu 位置"),
+                        React.createElement("a", { 
+                            href: "https://www.google.com/maps/search/?api=1&query=Ooredoo+Experience+Centre+Velana+International+Airport",
+                            target: "_blank", 
+                            rel: "noreferrer",
+                            className: "flex-1 bg-red-50 text-red-600 border border-red-100 px-3 py-2 rounded-lg text-xs font-bold text-center hover:bg-red-100 transition flex items-center justify-center gap-1"
+                        }, React.createElement(MapPin, { size: 12 }), "Ooredoo 位置")
+                    ),
+
+                    React.createElement("div", { className: "border-l-4 border-yellow-400 pl-3 py-1 bg-yellow-50 text-gray-700 rounded-r text-xs" },
+                       "小提醒：馬爾地夫沒有真正「吃到飽」方案，即使標榜 unlimited，也可能有流量上限或限速。"
+                    )
                  ),
 
                  React.createElement(InfoCard, { icon: CreditCard, title: "小費指南 (建議準備百元美金小鈔)", color: "teal" },
